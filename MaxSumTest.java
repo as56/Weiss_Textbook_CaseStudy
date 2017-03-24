@@ -105,16 +105,18 @@ public final class MaxSumTest
     {
         int maxLeftBorderSum = 0, maxRightBorderSum = 0;
         int leftBorderSum = 0, rightBorderSum = 0;
-	//please refer to https://github.com/kelloggm/checker-framework/issues/86
-	@SuppressWarnings("index")
-        @IndexFor("a") int center =  (left + right)/2;
 
         if( left == right )  // Base case
             return a[ left ] > 0 ? a[ left ] : 0;
-	//please refer to https://github.com/kelloggm/checker-framework/issues/86
-	@SuppressWarnings("index")
+
+	@IndexFor("a") int center =  (left + right)/2;
+	
         int maxLeftSum  = maxSumRec( a, left, center );
-	//please refer to https://github.com/kelloggm/checker-framework/issues/86
+	
+        /* this code is correct becuase the base case condition if(left == right)
+        ensures that center + 1 is also an index for the array a. The base case will be
+        a single element array. The smallest non-base case array is a two element array
+        center in that case is 0, and center + 1 is 1 which is a valid index of a*/
 	@SuppressWarnings("index")
         int maxRightSum = maxSumRec( a, center + 1, right );
 

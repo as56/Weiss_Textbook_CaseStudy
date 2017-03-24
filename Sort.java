@@ -1,4 +1,4 @@
-import org.checkerframework.checker.lowerbound.qual.*;
+import org.checkerframework.checker.index.qual.*;
 
 
 /**
@@ -319,7 +319,7 @@ public final class Sort
     }
 
 
-    private static final int NUM_ITEMS = 1000;
+    /*private static final int NUM_ITEMS = 1000;
     private static int theSeed = 1;
 
     private static void checkSort( Integer [ ] a )
@@ -377,5 +377,5 @@ public final class Sort
         System.out.println( "Selection for N = " + b.length + " takes " + 
                              ( end - start ) + "ms." );
         System.out.println( b[ b.length / 2 - 1 ] + " " + b.length / 2 );
-    }
+    }*/
 }

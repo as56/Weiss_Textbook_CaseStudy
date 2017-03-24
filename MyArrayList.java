@@ -57,8 +57,7 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
         return old;    
     }
 
-    @SuppressWarnings("index")
-    //please refer to Index Checker Issue: https://github.com/kelloggm/checker-framework/issues/88
+    
     public void ensureCapacity(@NonNegative int newCapacity )
     {
         if( newCapacity < theSize )
@@ -86,14 +85,19 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
      * @param x any object.
      * @return true.
      */
+    /*the following code is correct because when the ensure
+    capacity method expands the 'theItems' array if the 
+    'theSize' variable is == the length of the array
+    theSize will be a valid index for the array. accordingly
+    idx which is atmost equal to 'theSize' will also be a valid
+    index for the array*/
     @SuppressWarnings("index")
-    //please refer to Issue: https://github.com/kelloggm/checker-framework/issues/88
-    public void add(@LTEqLengthOf("theItems") int idx, AnyType x )
+    public void add(@IndexOrHigh("theItems") int idx, AnyType x )
     {
         if( theItems.length == size( ) )
             ensureCapacity( size( ) * 2 + 1 );
 
-        for( int i = theSize; i > idx; i-- )
+        for( int i = theSize; i > idx; i-- ) // warning here
             theItems[ i ] = theItems[ i - 1 ];
 
         theItems[ idx ] = x;
@@ -160,6 +164,10 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
      */
     private class ArrayListIterator implements java.util.Iterator<AnyType>
     {
+	/*the index checker issues a warning here becuase 'theItems' could be 
+        an array of length 0, but the hasNext method in this class ensures that
+        current remains an index for 'theItems by ensuring the upperbound'*/
+	@SuppressWarnings("index")
         @IndexFor("theItems") private int current = 0;
         private boolean okToRemove = false;
         
@@ -177,8 +185,10 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
             okToRemove = true;    
             return theItems[ current++ ];
         }
-        @SuppressWarnings("index") //The okToRemove variable ensures that current is
-        //always @IndexFor("theItems")
+
+        /*the following code is correct because the okToRemove variable
+        ensures that --current is a valid index of 'theItems'*/
+        @SuppressWarnings("index") 
         public void remove( )
         {
             if( !okToRemove )

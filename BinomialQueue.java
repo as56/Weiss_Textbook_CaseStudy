@@ -43,7 +43,11 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
         theTrees = new BinNode[ 1 ];
         theTrees[ 0 ] = new BinNode<>( item, null, null );
     }
-    //please refer to https://github.com/kelloggm/checker-framework/issues/88
+     /*the index checker is correct in throwing a warning in this method
+    because the caller of this method could pass in a new size that is
+    smaller than the current size in which case this method could cause an 
+    OOB exception, but this method is private and at all the calls to this function
+    newSize > currentSize*/
     @SuppressWarnings("index")
     private void expandTheTrees(@Positive int newNumTrees )
     {

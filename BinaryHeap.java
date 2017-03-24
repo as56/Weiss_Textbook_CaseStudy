@@ -34,24 +34,34 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
      * Construct the binary heap.
      * @param capacity the capacity of the binary heap.
      */
+    //please refer to https://github.com/kelloggm/checker-framework/issues/95
     @SuppressWarnings("index")
     public BinaryHeap(@Positive int capacity )
     {
         currentSize = 0;
-        array = (AnyType[]) new Comparable[ capacity + 1 ];
+        array = (AnyType @MinLen(2)[]) new Comparable[ capacity + 1 ];
     }
     
     /**
      * Construct the binary heap given an array of items.
      */
-    //please refer to https://github.com/kelloggm/checker-framework/issues/88
-    @SuppressWarnings("index")
+    
+    
     public BinaryHeap( AnyType [ ] items )
     {
-            currentSize = items.length;
-            array = (AnyType[]) new Comparable[ ( currentSize + 2 ) * 11 / 10 ];
+            /*items.length in this case is an @IndexFor("array") type here because
+            it is non-negative as well as less than length of the array 'array' this is 
+            always guarenteed becuase on the sixth line from this one where the arrayl
+            variable is declared, the array 'array's' length is always items.length + 2*/
+            @SuppressWarnings("index")
+	    @IndexFor("array") int c_size = items.length;
+            currentSize = c_size;
+            //please refer to https://github.com/kelloggm/checker-framework/issues/95
+            @SuppressWarnings("index")
+	    AnyType @MinLen(2)[ ] arrayl = (AnyType @MinLen(2)[]) new Comparable[ ( currentSize + 2 ) * 11 / 10 ];
+            array = arrayl;
 
-            int i = 1;
+            @IndexFor("array") int i = 1;
             for( AnyType item : items )
                 array[ i++ ] = item;
             buildHeap( );
@@ -69,13 +79,19 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
 
             // Percolate up
 	//the array is being enlarged by the code above
-	@SuppressWarnings("index") // please refer to https://github.com/kelloggm/checker-framework/issues/88
+        /*this code is right due to the fact that the array doubles in size
+        due to the method call above if there is not enough space*/
+	@SuppressWarnings("index") 
         @IndexFor("array") int hole = ++currentSize;
         for( array[ 0 ] = x; x.compareTo( array[ hole / 2 ] ) < 0; hole /= 2 )
             array[ hole ] = array[ hole / 2 ];
         array[ hole ] = x;
     }
-    //please refer to https://github.com/kelloggm/checker-framework/issues/88
+    /*the index checker is correct in throwing a warning in this method
+    because the caller of this method could pass in a new size that is
+    smaller than the current size in which case this method could cause an 
+    OOB exception, but this method is private and at all the calls to this function
+    newSize > currentSize*/
     @SuppressWarnings("index")
     private void enlargeArray( int newSize )
     {
@@ -152,7 +168,7 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
     @SuppressWarnings("index")
     private void percolateDown( @IndexFor("array") int hole )
     {
-        @IndexFor("array") int child;
+        int child;
         AnyType tmp = array[ hole ];
 
         for( ; hole * 2 <= currentSize; hole = child )
