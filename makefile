@@ -8,6 +8,7 @@ JC = javac
 
 #Files I was unable to annotate
 #BinomialQueue.java -- lots of weird cases, I dont full understand this code
+#SuffixArray.java --lots of weird cases with external dependencies, confused on how to annotate
 #RadixSort.java -- this file has compilation problems I do not know how to resolve
 
 CLASSES = \
