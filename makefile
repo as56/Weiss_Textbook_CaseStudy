@@ -8,13 +8,14 @@ JC = ${CHECKERFRAMEWORK}/checker/bin-devel/javac
 
 #Files I was unable to annotate
 #BinomialQueue.java -- lots of weird cases, I dont full understand this code
-#SuffixArray.java --lots of weird cases with external dependencies, confused on how to annotate
 #RadixSort.java -- this file has compilation problems I do not know how to resolve
+#SuffixArray.java --lots of weird cases with external dependencies, confused on how to annotate
 
 CLASSES = \
   AvlTree.java \
   BinaryHeap.java \
   BinarySearchTree.java \
+  BinomialQueue.java \
   CuckooHashTable.java \
   DisjSets.java \
   Fig01_02.java \
@@ -40,6 +41,7 @@ CLASSES = \
   MyLinkedList.java \
   PairingHeap.java \
   QuadraticProbingHashTable.java \
+  RadixSort.java \
   Random.java \
   RedBlackTree.java \
   RemoveEvens.java \
@@ -47,6 +49,7 @@ CLASSES = \
   Sort.java \
   SplayTree.java \
   StringHashFamily.java \
+  SuffixArray.java \
   TestIntCell.java \
   TestMemoryCell.java \
   Treap.java \
