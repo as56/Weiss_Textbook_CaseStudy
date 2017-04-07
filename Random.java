@@ -1,3 +1,4 @@
+import org.checkerframework.checker.index.qual.*;
 // Random class
 //
 // CONSTRUCTION: with (a) no initializer or (b) an integer
@@ -123,8 +124,12 @@ public class Random
     {
         Random r = new Random( );
 
-        for( int j = 1; j < a.length; j++ )
-            Sort.swapReferences( a, j, r.randomInt( 0, j ) );
+        for( int j = 1; j < a.length; j++ ) {
+            /* this code is very obviously correct*/
+            @SuppressWarnings("index")
+            @IndexFor("a") int index = r.randomInt( 0, j );
+            Sort.swapReferences( a, j,  index);
+        }
     }
 
     private int state;

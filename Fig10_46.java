@@ -12,6 +12,9 @@ public class Fig10_46
      * Note: Entries below main diagonals of m and lastChange
      * are meaningless and uninitialized.
      */
+    // please refer to https://github.com/kelloggm/checker-framework/issues/139
+    // please also refer to https://github.com/kelloggm/checker-framework/issues/140
+    @SuppressWarnings("index")
     public static void optMatrix( int [ ] c, long [ ][ ] m, int [ ][ ] lastChange ) 
     {
         int n = c.length - 1;
@@ -36,7 +39,9 @@ public class Fig10_46
                 }
             }
     }
-
+    
+    // please also refer to https://github.com/kelloggm/checker-framework/issues/140
+    @SuppressWarnings("index")
     public static void main( String [ ] args )
     {
         int [ ] c = { 50, 10, 40, 30, 5 };

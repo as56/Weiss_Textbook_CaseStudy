@@ -1,5 +1,5 @@
 import java.util.Arrays;
-import org.checkerframework.checker.lowerbound.qual.*;
+import org.checkerframework.checker.index.qual.*;
 class SuffixArray
 {
     
@@ -9,8 +9,11 @@ class SuffixArray
      * @param sa the already-computed suffix array 0..N-1
      * @param LCP the resulting LCP array 0..N-1
      */
+   
     public static void makeLCPArray( int [ ] s, int [ ] sa, int [ ] LCP )
     {
+	System.out.println(s.length);
+        System.out.println(sa.length);
         int N = sa.length;
         int [ ] rank = new int[ N ];
         

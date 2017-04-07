@@ -169,8 +169,8 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
      */
     private @IndexFor("theTrees") int findMinIndex( )
     {
-        @NonNegative int i;
-        @NonNegative int minIndex;
+        @IndexFor("theTrees") int i;
+        @IndexFor("theTrees") int minIndex;
 
         for( i = 0; theTrees[ i ] == null; i++ )
             ;
@@ -260,7 +260,7 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
     @Positive private static final int DEFAULT_TREES = 1;
 
     @NonNegative private int currentSize;                // # items in priority queue
-    private BinNode<AnyType> [ ] theTrees;  // An array of tree roots
+    private BinNode<AnyType> @MinLen(1) [ ] theTrees;  // An array of tree roots
 
 
     /**

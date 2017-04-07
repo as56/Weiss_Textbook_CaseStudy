@@ -7,16 +7,8 @@ JC = javac
 
 
 #Files I was unable to annotate
-#BinomialQueue.java\
-#Random.java\ //needs sort to work correctyl
-#Fig10_46.java \
-#Fig10_53.java \
-#Fig10_63.java \//uses Sort
-#Treap.java\//Uses Sort
-#SuffixArray.java
-#PairingHeap.java
-#KdTree.java
-#Sort.java
+#BinomialQueue.java -- lots of weird cases, I dont full understand this code
+#RadixSort.java -- this file has compilation problems I do not know how to resolve
 
 CLASSES = \
 	Fig01_02.java \
@@ -51,8 +43,13 @@ CLASSES = \
         Fig10_38.java \
 	Fig10_45.java \
 	BinaryHeap.java\
-	
-	
+        KdTree.java\
+        PairingHeap.java\
+        Random.java\
+        Treap.java\
+        Fig10_53.java\
+	Fig10_43.java\
+	Sort.java\
 	
 	
 	

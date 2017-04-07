@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import org.checkerframework.checker.lowerbound.qual.*;
+import org.checkerframework.checker.index.qual.*;
 // PairingHeap class
 //
 // CONSTRUCTION: with no initializer
@@ -235,22 +235,26 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
             return first;
         }
     }
-
-    private PairNode<AnyType> [ ] doubleIfFull( PairNode<AnyType> [ ] array, @NonNegative int index )
+    /*please see explanation of correctness inside method body*/
+    @SuppressWarnings("index")
+    private PairNode<AnyType> @MinLen(5) [ ] doubleIfFull( PairNode<AnyType> @MinLen(5)[ ] array, @NonNegative int index )
     {
         if( index == array.length )
         {
             PairNode<AnyType> [ ] oldArray = array;
-
-            array = new PairNode[ index * 2 ];
+            /*please note this condition is entered only if index == array.length, so
+            array will always continue to have type @MinLen(5)*/
+            array = new PairNode[ index * 2 ]; // index checker problem line
             for( int i = 0; i < index; i++ )
-                array[ i ] = oldArray[ i ];
+                /*please note that 'array' has length twice that of the old array
+                hence i will always be a valid index */
+                array[ i ] = oldArray[ i ]; // index checker problem line
         }
         return array;
     }
    
         // The tree array for combineSiblings
-    private PairNode<AnyType> [ ] treeArray = new PairNode[ 5 ];
+    private PairNode<AnyType> @MinLen(5)[ ] treeArray = new PairNode[ 5 ];
 
     /**
      * Internal method that implements two-pass merging.
@@ -259,11 +263,12 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
      */
     private PairNode<AnyType> combineSiblings( PairNode<AnyType> firstSibling )
     {
+
         if( firstSibling.nextSibling == null )
             return firstSibling;
 
             // Store the subtrees in an array
-        int numSiblings = 0;
+        @IndexFor("treeArray") int numSiblings = 0;
         for( ; firstSibling != null; numSiblings++ )
         {
             treeArray = doubleIfFull( treeArray, numSiblings );
@@ -275,21 +280,38 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
         treeArray[ numSiblings ] = null;
 
             // Combine subtrees two at a time, going left to right
+        
         int i = 0;
-        for( ; i + 1 < numSiblings; i += 2 )
-            treeArray[ i ] = compareAndLink( treeArray[ i ], treeArray[ i + 1 ] );
-
+        
+        for( ; i + 1 < numSiblings; i += 2 ) { 
+            /*num siblings is @Index('treeArray') i stops before 1 before numSiblings so k must be @IndexFor('treeArray')*/
+            @SuppressWarnings("index")
+            @IndexFor("treeArray") int k = i + 1;
+            /*l is equal to i which is less than i + 1 which is a valid index for 'treeArray' (see explanation above)*/
+            @SuppressWarnings("index")
+            @IndexFor("treeArray") int l = i;
+            treeArray[ l ] = compareAndLink( treeArray[ l ], treeArray[ k ] ); // index checker problem line
+	}
             // j has the result of last compareAndLink.
             // If an odd number of trees, get the last one.
-        int j = i - 2;
+
+        /*when the above for loop terminates, i equals numSiblings + 1, so i - 2 will be a valid
+        index for 'treeArray' please remember treeArray is @MinLen(5), so j will be either the last
+        index or the second to last index depending on whether the treeArray is even or odd*/
+        @SuppressWarnings("index")
+        @IndexFor("treeArray") int j = i - 2;
         if( j == numSiblings - 3 )
             treeArray[ j ] = compareAndLink( treeArray[ j ], treeArray[ j + 2 ] );
 
             // Now go right to left, merging last tree with
             // next to last. The result becomes the new last.
-        for( ; j >= 2; j -= 2 )
-            treeArray[ j - 2 ] = compareAndLink( treeArray[ j - 2 ], treeArray[ j ] );
-
+        for( ; j >= 2; j -= 2 ) {
+            /*j is always >=2 in this for loop, and j is an @IndexFor('treeArray'), so j - 2
+            is also and @IndexFor("treeArray")*/
+            @SuppressWarnings("index")
+            @IndexFor("treeArray") int k = j - 2;
+            treeArray[ k ] = compareAndLink( treeArray[ k ], treeArray[ j ] );
+        }
         return (PairNode<AnyType>) treeArray[ 0 ];
     }
 

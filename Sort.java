@@ -33,6 +33,8 @@ public final class Sort
      * @param a an array of Comparable items.
      */
     public static <AnyType extends Comparable<? super AnyType>>
+    // please refer to https://github.com/kelloggm/checker-framework/issues/137
+    @SuppressWarnings("index")
     void shellsort( AnyType [ ] a )
     {
         @Positive int j;
@@ -66,15 +68,25 @@ public final class Sort
      * @int n the logical size of the binary heap.
      */
     private static <AnyType extends Comparable<? super AnyType>>
-    void percDown( AnyType [ ] a, @NonNegative int i, @NonNegative int n )
+    void percDown( AnyType [ ] a, @IndexFor("#1") int i, @IndexOrHigh("#1") int n )
     {
-        @NonNegative int child;
+        @IndexFor("a") int child;
         AnyType tmp;
 
         for( tmp = a[ i ]; leftChild( i ) < n; i = child )
         {
-            child = leftChild( i );
-            if( child != n - 1 && a[ child ].compareTo( a[ child + 1 ] ) < 0 )
+            /* note that this for loop checks the return value of the left child method and makes sure
+            it is within bounds for array 'a', the return type of leftChild() is also @NonNegative, so
+            tempChild will be @IndexFor("a")*/
+            @SuppressWarnings("index")
+            @IndexFor("a") int tempChild = leftChild(i);
+            child = tempChild;
+            /* the follwoing code is also right becuase if child != n - 1, it is less than n - 1, and
+            if the code was rewritten as "if( child < n - 1 && a[ child ].compareTo( a[ child + 1 ] ) < 0 )"
+            the index checker does not issue a warning*/
+            @SuppressWarnings("index")
+            @IndexFor("a")int childPlusOne = child + 1;
+            if( child != n - 1 && a[ child ].compareTo( a[ childPlusOne ] ) < 0 )
                 child++;
             if( tmp.compareTo( a[ child ] ) < 0 )
                 a[ i ] = a[ child ];
@@ -95,20 +107,27 @@ public final class Sort
             percDown( a, i, a.length );
         for( int i = a.length - 1; i > 0; i-- )
         {
+            // please refer to https://github.com/kelloggm/checker-framework/issues/138 
+            assert a.length >= 1 : "@AssumeAssertion(index)";
             swapReferences( a, 0, i );                /* deleteMax */
+            // please refer to https://github.com/kelloggm/checker-framework/issues/138
+            assert a.length >= 1 : "@AssumeAssertion(index)";
             percDown( a, 0, i );
         }
     }
 
 
-    /**
+
+   /**
      * Mergesort algorithm.
      * @param a an array of Comparable items.
      */
     public static <AnyType extends Comparable<? super AnyType>>
     void mergeSort( AnyType [ ] a )
     {
-        AnyType [ ] tmpArray = (AnyType[]) new Comparable[ a.length ];
+        /*this cast is safe*/
+	@SuppressWarnings("index")
+        AnyType @SameLen("a")[ ] tmpArray = (AnyType @SameLen("a")[]) new Comparable[ a.length ];
 
         mergeSort( a, tmpArray, 0, a.length - 1 );
     }
@@ -121,15 +140,23 @@ public final class Sort
      * @param right the right-most index of the subarray.
      */
     private static <AnyType extends Comparable<? super AnyType>>
-    void mergeSort( AnyType [ ] a, AnyType [ ] tmpArray,
-               @NonNegative int left, @NonNegative int right )
+    void mergeSort( AnyType [ ] a, AnyType @SameLen("#1")[ ] tmpArray,
+               @NonNegative int left, @LTLengthOf("#1") int right )
     {
         if( left < right )
         {
-            @NonNegative int center = ( left + right ) / 2;
-            mergeSort( a, tmpArray, left, center );
+            /*This code is correct becuase if left < right, left and right are indices for array 'a'
+            left will be less than right only when the length of 'a' >= 2*/
+            @SuppressWarnings("index")
+            @IndexFor("a") int center = ( left + right ) / 2;
+            /*this code is also correct for the same reason as noted above*/
+            @SuppressWarnings("index")
+            @IndexFor("a") int l = left; 
+            mergeSort( a, tmpArray, l, center );
             mergeSort( a, tmpArray, center + 1, right );
-            merge( a, tmpArray, left, center + 1, right );
+            /*this code is correct please see explanation at the beginning of this if block*/
+            assert a.length >= 2 : "@AssumeAssertion(index)";
+            merge( a, tmpArray, l, center + 1, right );
         }
     }
 
@@ -142,11 +169,16 @@ public final class Sort
      * @param rightEnd the right-most index of the subarray.
      */
     private static <AnyType extends Comparable<? super AnyType>>
-    void merge( AnyType [ ] a, AnyType [ ] tmpArray, @NonNegative int leftPos, @NonNegative int rightPos, @NonNegative int rightEnd )
+    void merge( AnyType @MinLen(2)[ ] a, AnyType @SameLen("#1")[ ] tmpArray, @IndexFor("#1") int leftPos, @IndexOrHigh("#1") int rightPos, @IndexFor("#1") int rightEnd )
     {
-        int leftEnd = rightPos - 1;
-        int tmpPos = leftPos;
-        @NonNegative int numElements = rightEnd - leftPos + 1;
+        /*At this point we know that rightPos is not only an @IndexFor("a"), but it is also positive
+        as the method that calls this method passes in the last valid index or the length of a @MinLen(2) array as the rightPos
+        so leftend will be @NonNegative, the index checker however does not support the annotation
+        @Positive @IndexOrHigh("a) int i = ...*/
+        @SuppressWarnings("index")
+        @IndexFor("a") int leftEnd = rightPos - 1;
+        @IndexFor("a") int tmpPos = leftPos;
+        int numElements = rightEnd - leftPos + 1;
 
         // Main loop
         while( leftPos <= leftEnd && rightPos <= rightEnd )
@@ -166,11 +198,14 @@ public final class Sort
             a[ rightEnd ] = tmpArray[ rightEnd ];
     }
 
-    /**
+     /**
      * Quicksort algorithm.
      * @param a an array of Comparable items.
      */
     public static <AnyType extends Comparable<? super AnyType>>
+    /* the empty array case is correctly handled by the code below so as to not
+    cause any OOB exceptions*/
+    @SuppressWarnings("index")
     void quicksort( AnyType [ ] a )
     {
         quicksort( a, 0, a.length - 1 );
@@ -184,7 +219,7 @@ public final class Sort
      * @param index1 the index of the first object.
      * @param index2 the index of the second object.
      */
-    public static <AnyType> void swapReferences( AnyType [ ] a, @NonNegative int index1, @NonNegative int index2 )
+    public static <AnyType> void swapReferences( AnyType [ ] a, @IndexFor("#1") int index1, @IndexFor("#1") int index2 )
     {
         AnyType tmp = a[ index1 ];
         a[ index1 ] = a[ index2 ];
@@ -196,9 +231,9 @@ public final class Sort
      * Order these and hide the pivot.
      */
     private static <AnyType extends Comparable<? super AnyType>>
-    AnyType median3( AnyType [ ] a, @NonNegative int left, @NonNegative int right )
+    AnyType median3( AnyType [ ] a, @IndexFor("#1") int left, @IndexFor("#1") int right )
     {
-        int center = ( left + right ) / 2;
+        @IndexFor("a") int center = ( left + right ) / 2;
         if( a[ center ].compareTo( a[ left ] ) < 0 )
             swapReferences( a, left, center );
         if( a[ right ].compareTo( a[ left ] ) < 0 )
@@ -207,8 +242,14 @@ public final class Sort
             swapReferences( a, center, right );
 
             // Place pivot at position right - 1
-        swapReferences( a, center, right - 1 );
-        return a[ right - 1 ];
+        /* this code is correct becuase if we look at the only call site of this method
+        in the quickSort method below, we know that right which is @IndexFor("a") is greater
+        than or equal to left + 3, left also being @IndexFor("a"), this method should
+        stylistically be private to avoid user error, but as the code sits it is correct */
+        @SuppressWarnings("index")
+        @IndexFor("a") int rightMinusOne = right - 1;
+        swapReferences( a, center, rightMinusOne );
+        return a[ rightMinusOne ];
     }
 
     /**
@@ -218,29 +259,46 @@ public final class Sort
      * @param left the left-most index of the subarray.
      * @param right the right-most index of the subarray.
      */
+    /* unfortunately the way this code is written I dont think I can
+    narrow the scope of this @SuppressWarnings any further than this,
+    please look for explanations of code correctness inside the body of
+    this method, the index checker issues warnings in 5 lines noted below*/
+    @SuppressWarnings("index")
     private static <AnyType extends Comparable<? super AnyType>>
-    void quicksort( AnyType [ ] a, @NonNegative int left, @NonNegative int right )
+    void quicksort( AnyType [ ] a, @IndexFor("#1") int left, @IndexFor("#1") int right )
     {
         if( left + CUTOFF <= right )
         {
             AnyType pivot = median3( a, left, right );
 
                 // Begin partitioning
-            int i = left, j = right - 1;
+            int i = left;
+            int j = right - 1;
             for( ; ; )
             {
-                while( a[ ++i ].compareTo( pivot ) < 0 ) { }
-                while( a[ --j ].compareTo( pivot ) > 0 ) { }
+                /* please note that this code is correct becuase the pivot is the
+                median element in this subarray, so i cannot run off the end of this
+                array as we are guranteed to find an element that is greater than or equal
+                than the pivot element in this array, also please note that array
+                is @MinLen(4) becuase of the condition in the if block left + CUTOFF(which is 3) <= right*/
+                while( a[ ++i ].compareTo( pivot ) < 0 ) { } // INDEX CHECKER WARNING
+                /* for the same reason as above, j can run off the beginning of the array as it is guaranteed to find
+                and element smaller than or equal to the median in this subarray*/
+                while( a[ --j ].compareTo( pivot ) > 0 ) { } // INDEX CHECKER WARNING
                 if( i < j )
                     swapReferences( a, i, j );
                 else
                     break;
             }
-
-            swapReferences( a, i, right - 1 );   // Restore pivot
-
-            quicksort( a, left, i - 1 );    // Sort small elements
-            quicksort( a, i + 1, right );   // Sort large elements
+            /* The line below are correct becuase i will be @IndexFor("a")
+            where the pivot should go, the pivot will be at right - 1*/
+            swapReferences( a, i, right - 1 );   // Restore pivot // INDEX CHECKER WARNING
+            /* In the following two lines either i - 1 and i + 1 will either be valid indices
+            representing the start and end of a subarray of a, otherwise none of the code
+            in quickSort will be executed and the control goes to insertionSort which 
+            handles the case it which left and right could be invalid indices*/
+            quicksort( a, left, i - 1 );    // Sort small elements // INDEX CHECKER WARNING
+            quicksort( a, i + 1, right );   // Sort large elements // INDEX CHECKER WARNING
         }
         else  // Do an insertion sort on the subarray
             insertionSort( a, left, right );
@@ -254,12 +312,12 @@ public final class Sort
      * @param right the right-most index of the subarray.
      */
     private static <AnyType extends Comparable<? super AnyType>>
-    void insertionSort( AnyType [ ] a, @NonNegative int left, @NonNegative int right )
+    void insertionSort( AnyType [ ] a, @IndexFor("#1") int left, @IndexFor("#1") int right )
     {
         for( int p = left + 1; p <= right; p++ )
         {
             AnyType tmp = a[ p ];
-            int j;
+            @IndexFor("a") int j;
 
             for( j = p; j > left && tmp.compareTo( a[ j - 1 ] ) < 0; j-- )
                 a[ j ] = a[ j - 1 ];
@@ -273,6 +331,9 @@ public final class Sort
      * @param a an array of Comparable items.
      * @param k the desired rank (1 is minimum) in the entire array.
      */     
+    /* the empty array case is correctly handled by the code below so as to not
+    cause any OOB exceptions see the cutoff statement*/
+    @SuppressWarnings("index")
     public static <AnyType extends Comparable<? super AnyType>>
     void quickSelect( AnyType [ ] a, @Positive int k )
     {
@@ -288,8 +349,10 @@ public final class Sort
      * @param right the right-most index of the subarray.
      * @param k the desired index (1 is minimum) in the entire array.
      */
+    /* This is a repeat of the same five cases from quickSort*/
+    @SuppressWarnings("index")
     private static <AnyType extends Comparable<? super AnyType>>
-    void quickSelect( AnyType [ ] a, @NonNegative int left, @NonNegative int right, @Positive int k )
+    void quickSelect( AnyType [ ] a, @IndexFor("#1") int left, @IndexFor("#1") int right, @Positive int k )
     {
         if( left + CUTOFF <= right )
         {
@@ -299,27 +362,27 @@ public final class Sort
             int i = left, j = right - 1;
             for( ; ; )
             {
-                while( a[ ++i ].compareTo( pivot ) < 0 ) { }
-                while( a[ --j ].compareTo( pivot ) > 0 ) { }
+                while( a[ ++i ].compareTo( pivot ) < 0 ) { } // INDEX CHECKER WARNING
+                while( a[ --j ].compareTo( pivot ) > 0 ) { } // INDEX CHECKER WARNING
                 if( i < j )
                     swapReferences( a, i, j );
                 else
                     break;
             }
 
-            swapReferences( a, i, right - 1 );   // Restore pivot
+            swapReferences( a, i, right - 1 );   // Restore pivot // INDEX CHECKER WARNING
 
             if( k <= i )
-                quickSelect( a, left, i - 1, k );
+                quickSelect( a, left, i - 1, k ); // INDEX CHECKER WARNING
             else if( k > i + 1 )
-                quickSelect( a, i + 1, right, k );
+                quickSelect( a, i + 1, right, k ); // INDEX CHECKER WARNING
         }
         else  // Do an insertion sort on the subarray
             insertionSort( a, left, right );
     }
 
 
-    /*private static final int NUM_ITEMS = 1000;
+    private static final int NUM_ITEMS = 1000;
     private static int theSeed = 1;
 
     private static void checkSort( Integer [ ] a )
@@ -377,5 +440,5 @@ public final class Sort
         System.out.println( "Selection for N = " + b.length + " takes " + 
                              ( end - start ) + "ms." );
         System.out.println( b[ b.length / 2 - 1 ] + " " + b.length / 2 );
-    }*/
+    }
 }

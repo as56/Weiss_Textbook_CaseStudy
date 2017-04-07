@@ -13,6 +13,9 @@ public class Fig10_53
      * Actual path can be computed using path[ ][ ].
      * NOT_A_VERTEX is -1
      */
+    // please refer to https://github.com/kelloggm/checker-framework/issues/139
+    // please also refer to https://github.com/kelloggm/checker-framework/issues/140
+    @SuppressWarnings("index")
     public static void allPairs( int [ ][ ] a, int [ ][ ] d, int [ ][ ] path ) 
     {
         int n = a.length;
@@ -36,7 +39,9 @@ public class Fig10_53
                         path[ i ][ j ] = k;
                     }
     }
-
+    // please refer to https://github.com/kelloggm/checker-framework/issues/139
+    // please also refer to https://github.com/kelloggm/checker-framework/issues/140
+    @SuppressWarnings("index")
     public static void main( String [ ] args )
     {
         int [ ][ ] a = { { 0, 2, -2, 2 }, { 1000, 0, -3, 1000 },
