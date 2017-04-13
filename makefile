@@ -49,14 +49,18 @@ CLASSES = \
   Sort.java \
   SplayTree.java \
   StringHashFamily.java \
-  SuffixArray.java \
   TestIntCell.java \
   TestMemoryCell.java \
   Treap.java \
   WordLadder.java \
 
+#   SuffixArray.java \
 
-default: classes
+
+default: typecheck
+
+typecheck:
+	$(JC) $(JFLAGS) -proc:only *.java
 
 classes: $(CLASSES:.java=.class)
 
