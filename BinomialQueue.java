@@ -43,22 +43,29 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
         theTrees = new BinNode[ 1 ];
         theTrees[ 0 ] = new BinNode<>( item, null, null );
     }
-     /*the index checker is correct in throwing a warning in this method
-    because the caller of this method could pass in a new size that is
-    smaller than the current size in which case this method could cause an 
-    OOB exception, but this method is private and at all the calls to this function
-    newSize > currentSize*/
-    @SuppressWarnings("index")
-    private void expandTheTrees(@Positive int newNumTrees )
+    
+    private void expandTheTrees(@NonNegative int newNumTrees )
     {
         BinNode<AnyType> [ ] old = theTrees;
         int oldNumTrees = theTrees.length;
 
         theTrees = new BinNode[ newNumTrees ];
-        for( int i = 0; i < Math.min( oldNumTrees, newNumTrees ); i++ )
-            theTrees[ i ] = old[ i ];
-        for( int i = oldNumTrees; i < newNumTrees; i++ )
-            theTrees[ i ] = null;
+        for( int i = 0; i < Math.min( oldNumTrees, newNumTrees ); i++ ) {
+            /* this code is right because i's upperbound is 
+            the min of oldNumTrees and newNumTrees*/
+            @SuppressWarnings("index")
+            @IndexFor("theTrees") int idx = i;
+            @SuppressWarnings("index")
+            @IndexFor("old") int oldidx = i;
+            theTrees[ idx ] = old[ oldidx ];
+        }
+        for( int i = oldNumTrees; i < newNumTrees; i++ ) {
+            /* this code is right because if oldNumTrees is greater
+            than newNumTrees this for loop is not executed at all*/
+            @SuppressWarnings("index")
+            @IndexFor("theTrees") int idx = i;
+            theTrees[ idx ] = null;
+        }
     }
     
     /**
@@ -82,8 +89,23 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
         BinNode<AnyType> carry = null;
         for( int i = 0, j = 1; j <= currentSize; i++, j *= 2 )
         {
-            BinNode<AnyType> t1 = theTrees[ i ];
-            BinNode<AnyType> t2 = i < rhs.theTrees.length ? rhs.theTrees[ i ] : null;
+            /* Please Note that theTree array can conatin at most log(N)
+            elementes as per the way Binomial Queues are structured. 
+            j is a counter that doubles every pass, so i will still be
+            a valid index for "theTrees" array becuase of the growth rate
+            of j which is what affects the maximum value i will attain*/
+            
+            @SuppressWarnings("index") 
+            @IndexFor("theTrees") int idx = i;
+            /* the current sixe is the sum of both this and rhs's sizes,
+            please note that the expandTheTrees method is called before this for loop
+            that appropriately resizes the array ensuring i remains a valid index for
+            for the smaller of the two trees whether it by this or rhs*/
+            @SuppressWarnings("index") 
+            @IndexFor("rhs.theTrees") int rhsidx = i;
+
+            BinNode<AnyType> t1 = theTrees[ idx ];
+            BinNode<AnyType> t2 = i < rhs.theTrees.length ? rhs.theTrees[ rhsidx ] : null;
 
             int whichCase = t1 == null ? 0 : 1;
             whichCase += t2 == null ? 0 : 2;
@@ -95,29 +117,29 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
               case 1: /* Only this */
                 break;
               case 2: /* Only rhs */
-                theTrees[ i ] = t2;
-                rhs.theTrees[ i ] = null;
+                theTrees[ idx ] = t2;
+                rhs.theTrees[ rhsidx ] = null;
                 break;
               case 4: /* Only carry */
-                theTrees[ i ] = carry;
+                theTrees[ idx ] = carry;
                 carry = null;
                 break;
               case 3: /* this and rhs */
                 carry = combineTrees( t1, t2 );
-                theTrees[ i ] = rhs.theTrees[ i ] = null;
+                theTrees[ idx ] = rhs.theTrees[ rhsidx ] = null;
                 break;
               case 5: /* this and carry */
                 carry = combineTrees( t1, carry );
-                theTrees[ i ] = null;
+                theTrees[ idx ] = null;
                 break;
               case 6: /* rhs and carry */
                 carry = combineTrees( t2, carry );
-                rhs.theTrees[ i ] = null;
+                rhs.theTrees[ rhsidx ] = null;
                 break;
               case 7: /* All three */
-                theTrees[ i ] = carry;
+                theTrees[ idx ] = carry;
                 carry = combineTrees( t1, t2 );
-                rhs.theTrees[ i ] = null;
+                rhs.theTrees[ rhsidx ] = null;
                 break;
             }
         }
@@ -171,7 +193,9 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
     {
         @IndexFor("theTrees") int i;
         @IndexFor("theTrees") int minIndex;
-
+        /* it is assumed the priority Queue is not empty, please see 
+        documentation above this method*/
+        assert theTrees.length >= 1 : "@AssumeAssertion(index)";
         for( i = 0; theTrees[ i ] == null; i++ )
             ;
 
@@ -204,9 +228,16 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
         deletedQueue.currentSize = ( 1 << minIndex ) - 1;
         for( int j = minIndex - 1; j >= 0; j-- )
         {
-            deletedQueue.theTrees[ j ] = deletedTree;
+
+            /* note minIndex is @IndexFor("deletedQueue.theTrees") becuase
+            the call to expandTheTrees on deletedQueue sets the 'theTrees' field
+            of deletedQueue to an array of length minIndex so j is a valid index
+            if minIndex happens to be 0 this for loop is not executed*/
+            @SuppressWarnings("index") 
+            @IndexFor("deletedQueue.theTrees") int idx = j;
+            deletedQueue.theTrees[ idx ] = deletedTree;
             deletedTree = deletedTree.nextSibling;
-            deletedQueue.theTrees[ j ].nextSibling = null;
+            deletedQueue.theTrees[ idx ].nextSibling = null;
         }
 
         // Construct H'
@@ -259,14 +290,14 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
 
     @Positive private static final int DEFAULT_TREES = 1;
 
-    @NonNegative private int currentSize;                // # items in priority queue
-    private BinNode<AnyType> @MinLen(1) [ ] theTrees;  // An array of tree roots
+    private int currentSize;                // # items in priority queue
+    private BinNode<AnyType> [ ] theTrees;  // An array of tree roots
 
 
     /**
      * Return the capacity.
      */
-    private @NonNegative int capacity( )
+    private int capacity( )
     {
         return ( 1 << theTrees.length ) - 1;
     }
