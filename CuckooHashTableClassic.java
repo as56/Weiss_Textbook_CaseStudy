@@ -1,5 +1,6 @@
-import java.util.HashSet;
-
+import java.util.*;
+import java.io.*;
+import org.checkerframework.checker.index.qual.*;
 
 
 // Cuckoo Hash table class
@@ -32,13 +33,19 @@ public class CuckooHashTableClassic<AnyType>
      * Construct the hash table.
      * @param size the approximate initial size.
      */
-    public CuckooHashTableClassic( HashFamily<? super AnyType> hf, int size )
+    public CuckooHashTableClassic( HashFamily<? super AnyType> hf, @Positive int size )
     {
         hashFunctions = hf;
         numHashFunctions = hf.getNumberOfFunctions( );
-        subTableSize = nextPrime( size / numHashFunctions );
+        /* The user of this data structure could cause this code
+        to break, the textbook just seems to assume that the user will
+        do the right thing here, and the hf class will generate
+        a 'numHashFunctions' that is < the 'size'*/
+        @SuppressWarnings("index")
+        @Positive int nextP = size / numHashFunctions;
+        subTableSize = nextPrime( nextP );
         subTableStarts = new int[ numHashFunctions ];
-        for( int i = 0; i < numHashFunctions; i++ )
+        for( int i = 0; i < subTableStarts.length; i++ )
             subTableStarts[ i ] = i * subTableSize;
         
         allocateArray( subTableSize * numHashFunctions );
@@ -47,7 +54,7 @@ public class CuckooHashTableClassic<AnyType>
 
     
     private static final double MAX_LOAD = 0.49;
-    private static final int ALLOWED_REHASHES = 100;
+    @Positive private static final int ALLOWED_REHASHES = 100;
     
     private int rehashes = 0;
     
@@ -71,7 +78,15 @@ public class CuckooHashTableClassic<AnyType>
             if( which == numHashFunctions )
                 which = 0;
             
-            int pos = myhash( x, which );
+            /* numHashFunctions is the length of the subTableStarts array
+            and each time which reaches than length, it is reset to 0 in
+            if statement above, we also know the type of 'this.array' here
+            to be @MinLen(1), please see the earlier call to expand() method, so
+            0 is a valid index */
+            @SuppressWarnings("index")
+            @IndexFor("subTableStarts") int w = which;
+
+            @IndexFor("array") int pos = myhash( x, w );
 
             if( array[ pos ] == null )
             {
@@ -96,7 +111,7 @@ public class CuckooHashTableClassic<AnyType>
         return insert( x );
     }
 
-    protected int myhash( AnyType x, int which )
+    protected @IndexFor("array") int myhash( AnyType x, @IndexFor("subTableStarts") int which )
     {
         int hashVal = hashFunctions.hash( x, which );
         
@@ -104,12 +119,23 @@ public class CuckooHashTableClassic<AnyType>
         if( hashVal < 0 )
             hashVal += subTableSize;
         
-        return hashVal + subTableStarts[ which ];
+        /* the hashVal represents a certain offset within the whole
+        hashTable array, and subTableStarts contains a valid index for the
+        subArray as in offset1 _ _ _ _ offset2 _ _ _ _ offset3, and
+        subtableStarts[which] decides which blank the element goes in*/
+        @SuppressWarnings("index")
+        @IndexFor("array") int i = hashVal + subTableStarts[ which ];
+        return i;
     }
     
     private void expand( )
     {
-        rehash( numHashFunctions * nextPrime( (int) ( array.length / MAX_LOAD  / numHashFunctions ) ) );
+        /* please look at all the calls to allocateArray method in this code,
+        it ensures that array.length is always greater than or equal to
+        numHashFunctions*/
+        @SuppressWarnings("index")
+        @Positive int prime = (int) ( array.length / MAX_LOAD  / numHashFunctions ) ;
+        rehash( numHashFunctions * nextPrime( prime ) );
     }
     
     private void rehash( )
@@ -119,7 +145,7 @@ public class CuckooHashTableClassic<AnyType>
         rehash( array.length );
     }
     
-    private void rehash( int newLength )
+    private void rehash( @NonNegative int newLength )
     {
      //   System.out.println( "REHASH: " + array.length + " " + newLength + " " + currentSize );
         
@@ -128,7 +154,7 @@ public class CuckooHashTableClassic<AnyType>
         if( newLength != array.length )
         {
             subTableSize = newLength / numHashFunctions;
-            for( int i = 0; i < numHashFunctions; i++ )
+            for( int i = 0; i < subTableStarts.length; i++ )
                 subTableStarts[ i ] = i * subTableSize;
         }
             
@@ -146,7 +172,7 @@ public class CuckooHashTableClassic<AnyType>
      * Gets the size of the table.
      * @return number of items in the hash table.
      */
-    public int size( )
+    public @NonNegative int size( )
     {
         return currentSize;
     }
@@ -155,7 +181,7 @@ public class CuckooHashTableClassic<AnyType>
      * Gets the length (potential capacity) of the table.
      * @return length of the internal array in the hash table.
      */
-    public int capacity( )
+    public @NonNegative int capacity( )
     {
         return array.length;
     }
@@ -165,11 +191,11 @@ public class CuckooHashTableClassic<AnyType>
      * @param x the item to search for.
      * @return the position where the search terminates, or -1 if not found.
      */
-    private int findPos( AnyType x )
+    private @IndexOrLow("array") int findPos( AnyType x )
     {
-        for( int i = 0; i < numHashFunctions; i++ )
+        for( int i = 0; i < subTableStarts.length; i++ )
         {
-            int pos = myhash( x, i );
+            @IndexFor("array") int pos = myhash( x, i );
             if( array[ pos ] != null && array[ pos ].equals( x ) )
                 return pos;
         }
@@ -225,17 +251,17 @@ public class CuckooHashTableClassic<AnyType>
     private static final int DEFAULT_TABLE_SIZE = 101;
 
     private final HashFamily<? super AnyType> hashFunctions;
-    private final int numHashFunctions;
+    @Positive private final int numHashFunctions;
     private AnyType [ ] array; // The array of elements
-    private int currentSize; 
-    private int subTableSize;
+    @NonNegative private int currentSize; 
+    @NonNegative private int subTableSize;
     private int [ ] subTableStarts;
 
     /**
      * Internal method to allocate array.
      * @param arraySize the size of the array.
      */
-    private void allocateArray( int arraySize )
+    private void allocateArray( @NonNegative int arraySize )
     {
         array = (AnyType[]) new Object[ arraySize ];
     }
@@ -245,7 +271,7 @@ public class CuckooHashTableClassic<AnyType>
      * @param n the starting number (must be positive).
      * @return a prime number larger than or equal to n.
      */
-    private static int nextPrime( int n )
+    private static @Positive int nextPrime( @Positive int n )
     {
         if( n % 2 == 0 )
             n++;
@@ -322,7 +348,7 @@ public class CuckooHashTableClassic<AnyType>
        
           
         
-        /*
+        
         Scanner scan = null;
         Set<String> words = new HashSet<>( );
         
@@ -355,7 +381,7 @@ public class CuckooHashTableClassic<AnyType>
             if( scan != null )
                 scan.close( );
         }
-        */
+        
     }
 
 }
