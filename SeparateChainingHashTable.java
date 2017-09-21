@@ -47,7 +47,7 @@ public class SeparateChainingHashTable<AnyType>
      */
     public void insert( AnyType x )
     {
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         List<AnyType> whichList = theLists[ myhash( x ) ];
         if( !whichList.contains( x ) )
         {
@@ -65,7 +65,7 @@ public class SeparateChainingHashTable<AnyType>
      */
     public void remove( AnyType x )
     {
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         List<AnyType> whichList = theLists[ myhash( x ) ];
         if( whichList.contains( x ) )
     {
@@ -81,7 +81,7 @@ public class SeparateChainingHashTable<AnyType>
      */
     public boolean contains( AnyType x )
     {
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         List<AnyType> whichList = theLists[ myhash( x ) ];
         return whichList.contains( x );
     }
@@ -131,6 +131,7 @@ public class SeparateChainingHashTable<AnyType>
             for( AnyType item : list )
                 insert( item );
     }
+
     @SuppressWarnings("index")
     private int myhash( AnyType x )
     {
@@ -139,7 +140,7 @@ public class SeparateChainingHashTable<AnyType>
         hashVal %= theLists.length;
         if( hashVal < 0 )
             hashVal += theLists.length;
-	int i = hashVal;
+        int i = hashVal;
 
         return i;
     }

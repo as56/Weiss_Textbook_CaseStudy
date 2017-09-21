@@ -43,6 +43,7 @@ public final class BinomialQueue<AnyType extends Comparable<? super AnyType>>
         theTrees = new BinNode[ 1 ];
         theTrees[ 0 ] = new BinNode<>( item, null, null );
     }
+
     
     private void expandTheTrees(@NonNegative int newNumTrees )
     {

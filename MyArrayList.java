@@ -1,5 +1,6 @@
 import org.checkerframework.checker.index.qual.*;
 import java.lang.*;
+
 public class MyArrayList<AnyType> implements Iterable<AnyType>
 {
     /**
@@ -57,7 +58,6 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
         return old;    
     }
 
-    
     public void ensureCapacity(@NonNegative int newCapacity )
     {
         if( newCapacity < theSize )
@@ -164,10 +164,10 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
      */
     private class ArrayListIterator implements java.util.Iterator<AnyType>
     {
-	/*the index checker issues a warning here becuase 'theItems' could be 
+        /*the index checker issues a warning here becuase 'theItems' could be 
         an array of length 0, but the hasNext method in this class ensures that
         current remains an index for 'theItems by ensuring the upperbound'*/
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         @IndexFor("theItems") private int current = 0;
         private boolean okToRemove = false;
         
@@ -194,9 +194,9 @@ public class MyArrayList<AnyType> implements Iterable<AnyType>
             if( !okToRemove )
                 throw new IllegalStateException( );
            
-	    if(current >= 0) {
-            	MyArrayList.this.remove( --current );
-	    }
+            if(current >= 0) {
+                MyArrayList.this.remove( --current );
+            }
             okToRemove = false;
         }
     }

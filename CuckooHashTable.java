@@ -150,6 +150,7 @@ public class CuckooHashTable<AnyType>
         
         return hashVal;
     }
+
     @SuppressWarnings("index") // MAX_LOAD is a double in this case
     private void expand( )
     {

@@ -53,7 +53,7 @@ public class KdTree<AnyType extends Comparable<? super AnyType>>
      */
     
     public void printRange( AnyType @MinLen(2)[ ] low, AnyType @MinLen(2)[ ] high )
-    {	
+    {
         printRange( low, high, root, 0 );
     }
     /*Please see explanation of why this code is right inside the method body*/

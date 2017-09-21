@@ -15,7 +15,7 @@ public class Fig02_09
     int binarySearch(AnyType @MinLen(1)[ ] a, AnyType x )
     {
         @IndexFor("a") int low = 0, high = a.length - 1;
-	
+
         /*the following code is correct because while
         low(index used to scan the left of the array) is less than high
         (index scanning the right of the array), mid - 1, and mid + 1
@@ -26,7 +26,7 @@ public class Fig02_09
         while( low <= high )
         {
             int mid = ( low + high ) / 2;
-	    
+
             if( a[ mid ].compareTo( x ) < 0 )
                 low = mid + 1;
             else if( a[ mid ].compareTo( x ) > 0 )

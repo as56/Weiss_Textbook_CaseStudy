@@ -126,7 +126,7 @@ public final class Sort
     void mergeSort( AnyType [ ] a )
     {
         /*this cast is safe*/
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         AnyType @SameLen("a")[ ] tmpArray = (AnyType @SameLen("a")[]) new Comparable[ a.length ];
 
         mergeSort( a, tmpArray, 0, a.length - 1 );

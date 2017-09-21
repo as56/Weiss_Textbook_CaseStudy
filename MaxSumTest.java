@@ -100,7 +100,6 @@ public final class MaxSumTest
      * Finds maximum sum in subarray spanning a[left..right].
      * Does not attempt to maintain actual best sequence.
      */
-	
     private static int maxSumRec( int [ ] a, @IndexFor("#1") int left, @IndexFor("#1") int right )
     {
         int maxLeftBorderSum = 0, maxRightBorderSum = 0;
@@ -109,15 +108,15 @@ public final class MaxSumTest
         if( left == right )  // Base case
             return a[ left ] > 0 ? a[ left ] : 0;
 
-	@IndexFor("a") int center =  (left + right)/2;
-	
+        @IndexFor("a") int center =  (left + right)/2;
+
         int maxLeftSum  = maxSumRec( a, left, center );
-	
+
         /* this code is correct becuase the base case condition if(left == right)
         ensures that center + 1 is also an index for the array a. The base case will be
         a single element array. The smallest non-base case array is a two element array
         center in that case is 0, and center + 1 is 1 which is a valid index of a*/
-	@SuppressWarnings("index")
+        @SuppressWarnings("index")
         int maxRightSum = maxSumRec( a, center + 1, right );
 
         for( int i = center; i >= left; i-- )

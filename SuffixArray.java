@@ -9,7 +9,6 @@ class SuffixArray
      * @param sa the already-computed suffix array 0..N-1
      * @param LCP the resulting LCP array 0..N-1
      */
-   
     /* s.length >= sa.length, therefore, @IndexFor("sa") is @IndexFor("s") */
     @SuppressWarnings("index")
     public static void makeLCPArray( int [ ] s, int [ ] sa, int @SameLen("#1")[ ] LCP )
@@ -49,7 +48,7 @@ class SuffixArray
 
         /* s.length & sa.length = N + 3 */
         @SuppressWarnings("index")
-	@IndexFor("sa") int N1 = N;
+        @IndexFor("sa") int N1 = N;
         
         for( int i = 0; i < N1; i++ )
             s[ i ] = str.charAt( i );

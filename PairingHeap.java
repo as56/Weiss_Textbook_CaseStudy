@@ -242,6 +242,7 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
         if( index == array.length )
         {
             PairNode<AnyType> [ ] oldArray = array;
+
             /*please note this condition is entered only if index == array.length, so
             array will always continue to have type @MinLen(5)*/
             array = new PairNode[ index * 2 ]; // index checker problem line
@@ -263,7 +264,6 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
      */
     private PairNode<AnyType> combineSiblings( PairNode<AnyType> firstSibling )
     {
-
         if( firstSibling.nextSibling == null )
             return firstSibling;
 
@@ -291,7 +291,7 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
             @SuppressWarnings("index")
             @IndexFor("treeArray") int l = i;
             treeArray[ l ] = compareAndLink( treeArray[ l ], treeArray[ k ] ); // index checker problem line
-	}
+        }
             // j has the result of last compareAndLink.
             // If an odd number of trees, get the last one.
 
@@ -312,6 +312,7 @@ public class PairingHeap<AnyType extends Comparable<? super AnyType>>
             @IndexFor("treeArray") int k = j - 2;
             treeArray[ k ] = compareAndLink( treeArray[ k ], treeArray[ j ] );
         }
+
         return (PairNode<AnyType>) treeArray[ 0 ];
     }
 

@@ -17,7 +17,6 @@ public class RadixSort
         
         ArrayList<String> @MinLen(256) [ ] buckets = (ArrayList<String>[]) new ArrayList[ BUCKETS ];
         
-        
         for( int i = 0; i < BUCKETS; i++ ) {
             /* BUCKETS = 256, which is = buckets.length*/
             @SuppressWarnings("index")
@@ -27,7 +26,6 @@ public class RadixSort
         
         for( int pos = stringLen - 1; pos >= 0; pos-- )
         {
-
             for( String s : arr ) {
                 /* ascii values range from 0-255, therefore any call int s.charAt() in this
                 context is a valid index for buckets which is @MinLen(256)*/

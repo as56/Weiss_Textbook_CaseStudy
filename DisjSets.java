@@ -84,7 +84,7 @@ public class DisjSets
             for( int j = 0; j + k < NumElements; j += 2 * k )
             {
                 set1 = ds.find( j );// type of i and j will be unknown, one cannot say
-				    // Indexfor("some array") in this case
+                // Indexfor("some array") in this case
                 set2 = ds.find( j + k );
                 ds.union( set1, set2 );
             }

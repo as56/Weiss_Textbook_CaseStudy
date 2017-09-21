@@ -1,5 +1,6 @@
 import org.checkerframework.checker.index.qual.*;
 import java.lang.*;
+
 // QuadraticProbing Hash table class
 //
 // CONSTRUCTION: an approximate initial size or default of 101
@@ -87,7 +88,7 @@ public class QuadraticProbingHashTable<AnyType>
     private @IndexFor("array") int findPos( AnyType x )
     {
         int offset = 1;
-	//right here because of my hash, the type is unknown
+        //right here because of my hash, the type is unknown
         //so the rest of the function will also fail (i.e. issue warnings)
         int currentPos = myhash( x ); 
         
@@ -174,6 +175,7 @@ public class QuadraticProbingHashTable<AnyType>
         for( int i = 0; i < array.length; i++ )
             array[ i ] = null;
     }
+
     @SuppressWarnings("index")
     private @IndexFor("array") int myhash( AnyType x )
     {

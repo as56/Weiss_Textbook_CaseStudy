@@ -45,8 +45,6 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
     /**
      * Construct the binary heap given an array of items.
      */
-    
-    
     public BinaryHeap( AnyType [ ] items )
     {
             /*items.length in this case is an @IndexFor("array") type here because
@@ -54,11 +52,11 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
             always guarenteed becuase on the sixth line from this one where the arrayl
             variable is declared, the array 'array's' length is always items.length + 2*/
             @SuppressWarnings("index")
-	    @IndexFor("array") int c_size = items.length;
+            @IndexFor("array") int c_size = items.length;
             currentSize = c_size;
             //please refer to https://github.com/kelloggm/checker-framework/issues/95
             @SuppressWarnings("index")
-	    AnyType @MinLen(2)[ ] arrayl = (AnyType @MinLen(2)[]) new Comparable[ ( currentSize + 2 ) * 11 / 10 ];
+            AnyType @MinLen(2)[ ] arrayl = (AnyType @MinLen(2)[]) new Comparable[ ( currentSize + 2 ) * 11 / 10 ];
             array = arrayl;
 
             @IndexFor("array") int i = 1;
@@ -78,10 +76,10 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
             enlargeArray( array.length * 2 + 1 );
 
             // Percolate up
-	//the array is being enlarged by the code above
+        //the array is being enlarged by the code above
         /*this code is right due to the fact that the array doubles in size
         due to the method call above if there is not enough space*/
-	@SuppressWarnings("index") 
+        @SuppressWarnings("index") 
         @IndexFor("array") int hole = ++currentSize;
         for( array[ 0 ] = x; x.compareTo( array[ hole / 2 ] ) < 0; hole /= 2 )
             array[ hole ] = array[ hole / 2 ];
@@ -173,7 +171,7 @@ public class BinaryHeap<AnyType extends Comparable<? super AnyType>>
 
         for( ; hole * 2 <= currentSize; hole = child )
         {
-	    //here it is known that the expression hole*2 is @Index
+            //here it is known that the expression hole*2 is @Index
             child = hole * 2;
             if( child < currentSize && array[ child + 1 ].compareTo( array[ child ] ) < 0 )
                 child++;
